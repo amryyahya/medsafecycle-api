@@ -1,5 +1,5 @@
 const {
-    addBookHandler, getAllBooksHandler, getBookByIdHandler, editBookByIdHandler, deleteBookById, getAllCompaniesHandler
+     testing, getAllCompaniesHandler
   } = require('./handler');
   
   const routes = [
@@ -7,8 +7,15 @@ const {
     {
         method: 'GET',
         path: '/companies',
+        // kalo udah auth jadi gini ga sih 'api-key/companies
         handler: getAllCompaniesHandler,
-    }
+    },
+    {
+      method: 'GET',
+      path: '/',
+      handler: testing,
+  },
+    
   ];
   
   module.exports = routes;
