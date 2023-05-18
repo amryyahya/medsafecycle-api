@@ -1,0 +1,14 @@
+{
+  "name": "medsafecycle-api",
+  "version": "1.0.0",
+  "description": "this is the backend api for bangkit capstone project 2023 app, medsafecycle",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Team C23-PS269",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.2"
+  }
+}
