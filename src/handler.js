@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 const { nanoid } = require('nanoid');
-const {companies, gambar} = require('./conndb');
+const {getUsers} = require('./conndb');
 
 
 const loginHandler = (request, h) => {
@@ -25,7 +25,6 @@ const testing = (request, h) => {
       },
     });
     response.code(200);
-  
     return response;
   };
 const getAllCompaniesHandler = (request, h) => {
