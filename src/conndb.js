@@ -1,11 +1,5 @@
-/*
- code buat connect ke database ada di sini harusnya
-
- ini masih dari array aja
-*/
-
-const Sequelize = require("sequelize");
-const medsafe_db = new Sequelize(
+const {Sequelize, DataTypes} = require("sequelize");
+const sequelize = new Sequelize(
  'medsafe-db',
  'root',
  'randomstring',
@@ -14,5 +8,23 @@ const medsafe_db = new Sequelize(
     dialect: 'mysql'
   }
 );
+const User = sequelize.define("user", {
+  user_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_name: DataTypes.STRING,
+  user_email: DataTypes.STRING,
+  user_password: DataTypes.STRING,
+  user_address: DataTypes.STRING,
+  user_type: DataTypes.BOOLEAN,
+},
+{
+ freezeTableName: true,
+});
 
-module.exports = {medsafe_db};
+sequelize.drop().then(()=>{
+  sequelize.sync();
+})
+module.exports = {sequelize, User};

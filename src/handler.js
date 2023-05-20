@@ -1,11 +1,8 @@
-/* eslint-disable no-console */
-/* eslint-disable max-len */
 const { nanoid } = require('nanoid');
-const { medsafe_db } = require('./conndb');
+const { User } = require('./conndb');
 
 
 const loginHandler = (request, h) => {
-  // lagi nyari" caranya
   const response = h.response({
     status: 'success',
     data: {
@@ -52,8 +49,18 @@ async function getUsers() {
   }
 }
 
-getUsers();
-
+const register = (request, h) => {
+  User.create({
+    user_name: "amry", 
+    user_email: "email",
+    user_password: "password",
+    user_address: "address",
+    user_type: 0,
+  }).then((data)=>{
+    console.log(data.toJSON());
+  })
+};
+// register();
 module.exports = {
-  testing, getAllCompaniesHandler
+  testing, getAllCompaniesHandler, register
 };

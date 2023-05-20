@@ -1,5 +1,5 @@
 const {
-     testing, getAllCompaniesHandler
+     testing, getAllCompaniesHandler, register
   } = require('./handler');
   
   const routes = [
@@ -8,7 +8,7 @@ const {
         method: 'GET',
         path: '/companies',
         // kalo udah auth jadi gini ga sih 'api-key/companies
-        handler: getAllCompaniesHandler,
+        handler: register,
     },
     {
       method: 'GET',
