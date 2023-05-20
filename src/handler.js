@@ -2,65 +2,30 @@ const { nanoid } = require('nanoid');
 const { User } = require('./conndb');
 
 
-const loginHandler = (request, h) => {
+const registerHandler = (request, h) => {
+  const {
+    name, email, password, address, type
+  } = request.payload;
+  let success = 0;
+  User.create({
+    user_name: name,
+    user_email: email,
+    user_password: password,
+    user_address: address,
+    user_type: type,
+  })
   const response = h.response({
     status: 'success',
-    data: {
-      salam: "masih bingung"
-    },
+    message: 'Anda berhasil registrasi',
   });
-  response.code(200);
-
-  return response;
-};
-const testing = (request, h) => {
-
-  const response = h.response({
-    status: 'success',
-    data: {
-      salam: "hello world"
-    },
-  });
-  response.code(200);
-  return response;
-};
-const getAllCompaniesHandler = (request, h) => {
-
-  const response = h.response({
-    status: 'success',
-    data: {
-      perusahaan: companies
-    },
-  });
-  response.code(200);
-
+  response.code(201);
   return response;
 };
 
-async function getUsers() {
-  try {
-    await medsafe_db.authenticate();
-    console.log("connected");
-    const [results, metadata] = await medsafe_db.query('SELECT * FROM users')
-    console.log(results);
-
-  } catch (err) {
-    console.log("can't connect to database");
-  }
+const testHandler = (request, h) => {
+  return "<h1>anda mengakses api</h1>"
 }
 
-const register = (request, h) => {
-  User.create({
-    user_name: "amry", 
-    user_email: "email",
-    user_password: "password",
-    user_address: "address",
-    user_type: 0,
-  }).then((data)=>{
-    console.log(data.toJSON());
-  })
-};
-// register();
 module.exports = {
-  testing, getAllCompaniesHandler, register
+  registerHandler, testHandler
 };

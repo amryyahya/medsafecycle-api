@@ -8,7 +8,7 @@ const sequelize = new Sequelize(
     dialect: 'mysql'
   }
 );
-const User = sequelize.define("user", {
+const User = sequelize.define("users", {
   user_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -24,7 +24,4 @@ const User = sequelize.define("user", {
  freezeTableName: true,
 });
 
-sequelize.drop().then(()=>{
-  sequelize.sync();
-})
 module.exports = {sequelize, User};

@@ -1,21 +1,19 @@
 const {
-     testing, getAllCompaniesHandler, register
-  } = require('./handler');
+  registerHandler, testHandler
+} = require('./handler');
+
+const routes = [
   
-  const routes = [
-    
-    {
-        method: 'GET',
-        path: '/companies',
-        // kalo udah auth jadi gini ga sih 'api-key/companies
-        handler: register,
-    },
-    {
-      method: 'GET',
-      path: '/',
-      handler: testing,
+  {
+    method: 'POST',
+    path: '/register',
+    handler: registerHandler,
   },
-    
-  ];
-  
-  module.exports = routes;
+  {
+    method: 'GET',
+    path: '/',
+    handler: testHandler,
+  },
+
+];
+module.exports = routes;
