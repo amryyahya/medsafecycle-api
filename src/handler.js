@@ -1,13 +1,12 @@
 const { nanoid } = require('nanoid');
 const { User } = require('./model/User');
-const { hash } = require('bcryptjs');
 const jwt = require("jsonwebtoken");
+
 
 const registerHandler = async (request, h) => {
   const {
     name, email, password, address, type
   } = request.payload;
-  // encryptedPassword = await bcrypt.hash(password, 10);
   const user = await User.create({
     user_name: name,
     user_email: email.toLowerCase(),
@@ -19,7 +18,7 @@ const registerHandler = async (request, h) => {
   if (user.user_id) {
     const token = jwt.sign(
       { id: user.user_id, email },
-      "amryyahya"
+      "jwt_key"
     );
     User.update(
       { user_token: token },
@@ -30,6 +29,7 @@ const registerHandler = async (request, h) => {
       message: 'Anda berhasil registrasi',
       data: {
         token:token,
+        // test:request.pre.nameh,
       },
     });
 
@@ -39,7 +39,25 @@ const registerHandler = async (request, h) => {
 };
 
 const loginHandler = async (request, h) => {
-  
+  const {
+    email, password
+  } = request.payload;
+  const user = await User.findOne({
+    where: {
+      user_email: email
+    }
+  })
+  const response = h.response({
+    status: 'success',
+    message: 'Anda berhasil login',
+    data: {
+      token:user.user_token,
+    },
+  });
+
+  response.code(201);
+  return response;
+
 }
 
 const testHandler = (request, h) => {

@@ -1,7 +1,7 @@
 const {
-  registerHandler, testHandler, loginHandler
+  registerHandler, testHandler, loginHandler,
 } = require('./handler');
-
+const {authorization} = require('./middleware/auth')
 const routes = [
   
   {
@@ -19,6 +19,12 @@ const routes = [
     path: '/',
     handler: testHandler,
   },
+  // {
+  //   method: 'GET',
+  //   path: '/',
+  //   handler: getCompaniesHandler,
+    // options: { pre: [authorization] },
+
 
 ];
 module.exports = routes;

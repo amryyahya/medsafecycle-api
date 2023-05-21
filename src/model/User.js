@@ -17,5 +17,6 @@ const User = medsafe_db.define("users", {
         freezeTableName: true,
     });
 
+
 //User.sync(); buat bikin tabel
 module.exports = { User };
