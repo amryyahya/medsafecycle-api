@@ -1,13 +1,16 @@
 const jwt = require("jsonwebtoken");
+const { User } = require('../model/User');
 
 const config = process.env;
 
-const verifyToken = (request, h) => {
-  const {
-    name, email, password, address, type
-  } = request.payload;
-  return name + "hahaha"
+const verifyToken = async (request, h) => {
+  const user = await User.findOne({
+    where: {
+      user_token: request.headers["x-access-token"]
+    }
+  })
+  return user;
 };
-const authorization = { method: verifyToken, assign: "nameh" };
+const authorization = { method: verifyToken, assign: "user" };
 
 module.exports = {authorization};

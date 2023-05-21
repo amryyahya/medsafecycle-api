@@ -14,7 +14,6 @@ const registerHandler = async (request, h) => {
     user_address: address,
     user_type: type,
   })
-  // console.log(user.user_id);
   if (user.user_id) {
     const token = jwt.sign(
       { id: user.user_id, email },
@@ -29,7 +28,7 @@ const registerHandler = async (request, h) => {
       message: 'Anda berhasil registrasi',
       data: {
         token:token,
-        // test:request.pre.nameh,
+       
       },
     });
 
@@ -60,10 +59,24 @@ const loginHandler = async (request, h) => {
 
 }
 
+const getCompaniesHandler = async (request, h) => {
+    const user = request.pre.user;
+    if (!user.user_type) {
+      const user = await User.findAll({
+        where: {
+          user_type: 1
+        }
+      })
+      return user;
+    }
+    return "<h1>anda mengakses api</h1>"+user.user_name;
+    
+}
+
 const testHandler = (request, h) => {
-  return "<h1>anda mengakses api</h1>"
+  return "<h1>anda mengakses api</h1>"+request.headers["x-access-token"]
 }
 
 module.exports = {
-  registerHandler, loginHandler, testHandler
+  registerHandler, loginHandler, testHandler, getCompaniesHandler
 };
