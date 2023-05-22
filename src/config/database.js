@@ -1,8 +1,10 @@
+const dotenv = require("dotenv")
+dotenv.config()
 const {Sequelize, DataTypes} = require("sequelize");
 const medsafe_db = new Sequelize(
- 'medsafe-db',
- 'root',
- 'randomstring',
+ process.env.DATABASE_NAME,
+ process.env.DATABASE_USER,
+ process.env.DATABASE_PASSWORD,
   {
     host: '127.0.0.1',
     dialect: 'mysql'
