@@ -84,19 +84,37 @@ const loginHandler = async (request, h) => {
 const getCompaniesHandler = async (request, h) => {
   const user = request.pre.user;
   if (!user.user_type) {
-    const user = await User.findAll({
+    const companies = await User.findAll({
       where: {
         user_type: 1
       }
     })
-    return user;
+    var filteredCompanies = companies.map(company => ({ id: company.user_id, name: company.user_name, address: company.user_address }));
+
+    const response = h.response({
+      status: 'success',
+      message: 'Data perusahaan berhasil didapatkan',
+      data: {
+        companies: filteredCompanies,
+      },
+    });
+    response.code(200);
+    return response;
   }
-  return "<h1>anda mengakses api</h1>" + user.user_name;
+  const response = h.response({
+    status: 'failed',
+    message: 'Anda tidak bisa melihat data ini',
+    data: {
+      companies: companies,
+    },
+  });
+  response.code(404);
+  return response;
 
 }
 
 const testHandler = (request, h) => {
-  return "<h1>anda mengakses api</h1>" + request.headers["x-access-token"]
+  return "<h1>anda mengakses api</h1>"
 }
 
 module.exports = {

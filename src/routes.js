@@ -3,7 +3,7 @@ const {
 } = require('./handler');
 const {authorization} = require('./middleware/auth')
 const routes = [
-  
+   
   {
     method: 'POST',
     path: '/register',
