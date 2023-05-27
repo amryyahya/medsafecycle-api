@@ -1,6 +1,6 @@
 const { medsafe_db, DataTypes } = require("../config/database");
 
-const User = medsafe_db.define("users", {
+const User = medsafe_db.define("user", {
     user_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -17,11 +17,8 @@ const User = medsafe_db.define("users", {
     user_password: DataTypes.STRING,
     user_address: DataTypes.STRING,
     user_type: DataTypes.BOOLEAN,
-},
-    {
-        freezeTableName: true,
-    });
+});
 
 
-// User.sync(); 
+User.sync(); 
 module.exports = { User };
