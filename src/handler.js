@@ -247,7 +247,8 @@ const handleFileUpload = file => {
 const uploadHandler = async (request, h) => {
   try {
     const { payload } = request
-    const response = handleFileUpload(payload.file);
+    const response = await handleFileUpload(payload.file);
+    response.waste_type = 'Limbah Radioaktif';
     return response
   } catch (error) {
     console.log(error.message);
