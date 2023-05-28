@@ -247,8 +247,8 @@ const handleFileUpload = file => {
 const uploadHandler = async (request, h) => {
   try {
     const { payload } = request
-    const response = handleFileUpload(payload.file)
-    return response;
+    const response = handleFileUpload(payload.file);
+    return response
   } catch (error) {
     console.log(error.message);
   }
