@@ -1,9 +1,9 @@
-const { nanoid } = require('nanoid');
 const { User } = require('./model/User');
 const { Conversation } = require('./model/Conversation');
 const { Message } = require('./model/Message');
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
+const fs = require('fs');
 
 const registerHandler = async (request, h) => {
   const {
@@ -86,42 +86,42 @@ const loginHandler = async (request, h) => {
   } catch (error) {
     console.log(error);
   }
- 
+
 }
 
 const getCompaniesHandler = async (request, h) => {
-try {
-  const user = request.pre.user;
-  if (!user.user_type) {
-    const companies = await User.findAll({
-      where: {
-        user_type: 1
-      }
-    })
-    var filteredCompanies = companies.map(company => ({ id: company.user_id, name: company.user_name, address: company.user_address }));
+  try {
+    const user = request.pre.user;
+    if (!user.user_type) {
+      const companies = await User.findAll({
+        where: {
+          user_type: 1
+        }
+      })
+      var filteredCompanies = companies.map(company => ({ id: company.user_id, name: company.user_name, address: company.user_address }));
 
+      const response = h.response({
+        status: 'success',
+        message: 'Data perusahaan berhasil didapatkan',
+        data: {
+          companies: filteredCompanies,
+        },
+      });
+      response.code(200);
+      return response;
+    }
     const response = h.response({
-      status: 'success',
-      message: 'Data perusahaan berhasil didapatkan',
+      status: 'failed',
+      message: 'Anda tidak bisa melihat data ini',
       data: {
-        companies: filteredCompanies,
+        companies: companies,
       },
     });
-    response.code(200);
+    response.code(404);
     return response;
+  } catch (error) {
+    console.log(error);
   }
-  const response = h.response({
-    status: 'failed',
-    message: 'Anda tidak bisa melihat data ini',
-    data: {
-      companies: companies,
-    },
-  });
-  response.code(404);
-  return response;
-} catch (error) {
-  console.log(error);
-}
 }
 
 const addMessageHandler = async (request, h) => {
@@ -131,8 +131,8 @@ const addMessageHandler = async (request, h) => {
     const conversation = await Conversation.findOne({
       where: {
         [Op.or]: [
-          { [Op.and]:[{firstUser_id: senderUser_id},{secondUser_id: receiverUser_id}] },
-          { [Op.and]:[{firstUser_id: receiverUser_id},{secondUser_id: senderUser_id}] }
+          { [Op.and]: [{ firstUser_id: senderUser_id }, { secondUser_id: receiverUser_id }] },
+          { [Op.and]: [{ firstUser_id: receiverUser_id }, { secondUser_id: senderUser_id }] }
         ]
       }
     })
@@ -180,24 +180,24 @@ const getAllConversationsHandler = async (request, h) => {
     const user_id = request.pre.user.user_id;
     const conversations = await Conversation.findAll({
       where: {
-        [Op.or]: [{ firstUser_id: user_id }, { secondUser_id: user_id }],             
+        [Op.or]: [{ firstUser_id: user_id }, { secondUser_id: user_id }],
       }
     });
     const frontendConversations = new Array;
-    conversations.forEach(function(conversation){ 
-      if (conversation.firstUser_id===user_id) {
+    conversations.forEach(function (conversation) {
+      if (conversation.firstUser_id === user_id) {
         frontendConversations.push({
-          conversation_id:conversation.conversation_id,
-          companion_name:conversation.secondUser_name
+          conversation_id: conversation.conversation_id,
+          companion_name: conversation.secondUser_name
         })
       }
-      else  {
+      else {
         frontendConversations.push({
-          conversation_id:conversation.conversation_id,
-          companion_name:conversation.firstUser_id
+          conversation_id: conversation.conversation_id,
+          companion_name: conversation.firstUser_id
         })
       }
-     });
+    });
 
     const response = h.response({
       status: 'success',
@@ -231,11 +231,33 @@ const getConversationHandler = async (request, h) => {
     console.log(error.message);
   }
 }
+const handleFileUpload = file => {
+  return new Promise((resolve, reject) => {
+    const filename = file.hapi.filename
+    const data = file._data
+    fs.writeFile('./upload/' + filename, data, err => {
+      if (err) {
+        reject(err)
+      }
+      resolve({ message: 'Upload successfully!' })
+    })
+  })
+}
+
+const uploadHandler = async (request, h) => {
+  try {
+    const { payload } = request
+    const response = handleFileUpload(payload.file)
+    return response;
+  } catch (error) {
+    console.log(error.message);
+  }
+ }
 
 const testHandler = (request, h) => {
   return "<h1>anda mengakses api</h1>"
 }
 
 module.exports = {
-  registerHandler, loginHandler, testHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler
+  registerHandler, loginHandler, testHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler, uploadHandler
 };

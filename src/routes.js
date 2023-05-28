@@ -1,5 +1,5 @@
 const {
-  registerHandler, testHandler, loginHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler
+  registerHandler, testHandler, loginHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler, uploadHandler
 } = require('./handler');
 const {authorization} = require('./middleware/auth')
 const routes = [
@@ -31,6 +31,21 @@ const routes = [
     path: '/conversations/{conversation_id}',
     handler: getConversationHandler,
     options: { pre: [authorization] },
+  },
+  {
+    method: 'POST',
+    path: '/upload',
+    handler: uploadHandler,
+    options:{
+      auth: false, // false by default
+      payload: {
+         parse: true,
+         multipart: {
+                output: 'stream'
+         },
+         maxBytes: 1000 * 1000 * 5, // 5 Mb
+      }
+   }
   },
   {
     method: 'POST',
