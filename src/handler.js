@@ -5,7 +5,7 @@ const { Message } = require('./model/Message');
 const { Waste } = require('./model/Waste');
 const { Op } = require("sequelize");
 
-const {storage} = require('./config/storage')
+const { storage } = require('./config/storage')
 
 const registerHandler = async (request, h) => {
   const {
@@ -239,27 +239,27 @@ const uploadHandler = async (request, h) => {
     const { file } = request.payload;
     console.log(file._data);
     const waste = await Waste.create({
-      user_id: 0,
+      user_id: request.pre.user_id,
       waste_type: 7,
     })
     const file_name = waste.waste_id.toString();
-    const image_link= `https://storage.googleapis.com/medsafe-cycle/${file_name}`;
+    const image_link = `https://storage.googleapis.com/medsafe-cycle/${file_name}`;
     const updatedRows = await Waste.update(
       {
         image_link: image_link,
       },
       {
-        where: {waste_id: waste.waste_id},
+        where: { waste_id: waste.waste_id },
       }
     );
     console.log(updatedRows);
 
     const destination = storage.bucket('medsafe-cycle').file(file_name);
-    const response = destination.save(file._data,(err) => {
+    const response = destination.save(file._data, (err) => {
       if (!err) {
-        return {message:"berhasil terupload",type: "limbah kimia"};
+        return { message: "berhasil terupload", type: "limbah kimia" };
       } else {
-        return {message: "gagal terupload"}
+        return { message: "gagal terupload" }
       }
     });
     return response;
@@ -267,7 +267,7 @@ const uploadHandler = async (request, h) => {
   } catch (error) {
     console.log(error.message);
   }
- }
+}
 
 const testHandler = (request, h) => {
   return "<h1>anda mengakses api</h1>"

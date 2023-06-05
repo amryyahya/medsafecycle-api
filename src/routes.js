@@ -1,7 +1,7 @@
 const {
   registerHandler, testHandler, loginHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler, uploadHandler
 } = require('./handler');
-const {authorization} = require('./middleware/auth')
+const {authorization, isLogin} = require('./middleware/auth')
 const routes = [
    
   {
@@ -37,14 +37,14 @@ const routes = [
     path: '/upload',
     handler: uploadHandler,
     options:{
-      auth: false, // false by default
       payload: {
          parse: true,
          multipart: {
                 output: 'stream'
          },
-         maxBytes: 1000 * 1000 * 5, // 5 Mb
-      }
+         maxBytes: 1000 * 1000 * 10, 
+      },
+      pre: [isLogin],
    }
   },
   {
