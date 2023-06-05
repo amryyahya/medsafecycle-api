@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { User } = require('../model/User');
 
-const config = process.env;
-
 const verifyToken = async (request, h) => {
   try {
     const token = request.headers["x-access-token"]
