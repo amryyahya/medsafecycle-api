@@ -39,7 +39,7 @@ const registerHandler = async (request, h) => {
       status: 'client error',
       message: error.message,
     });
-    console.log(error);
+    console.log(error.message);
     response.code(409);
     return response;
   }
@@ -86,7 +86,7 @@ const loginHandler = async (request, h) => {
     response.code(401);
     return response;
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 
 }
@@ -122,7 +122,7 @@ const getCompaniesHandler = async (request, h) => {
     response.code(404);
     return response;
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 }
 
@@ -172,7 +172,7 @@ const addMessageHandler = async (request, h) => {
     response.code(200);
     return response;
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 
 }
@@ -237,7 +237,6 @@ const getConversationHandler = async (request, h) => {
 const uploadHandler = async (request, h) => {
   try {
     const { file } = request.payload;
-    console.log(file._data);
     const waste = await Waste.create({
       user_id: request.pre.user_id,
       waste_type: 7,
@@ -252,14 +251,13 @@ const uploadHandler = async (request, h) => {
         where: { waste_id: waste.waste_id },
       }
     );
-    console.log(updatedRows);
 
     const destination = storage.bucket('medsafe-cycle').file(file_name);
     const response = destination.save(file._data, (err) => {
       if (!err) {
         return { message: "berhasil terupload", type: "limbah kimia" };
       } else {
-        return { message: "gagal terupload" }
+        return { message: err.message }
       }
     });
     return response;
