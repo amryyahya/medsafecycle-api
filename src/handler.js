@@ -1,9 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { User } = require('./model/User');
-const { Conversation } = require('./model/Conversation');
-const { Message } = require('./model/Message');
 const { Waste } = require('./model/Waste');
-const { Op } = require("sequelize");
+// const { Op } = require("sequelize");
 
 const { storage } = require('./config/storage')
 
@@ -126,114 +124,6 @@ const getCompaniesHandler = async (request, h) => {
   }
 }
 
-const addMessageHandler = async (request, h) => {
-  try {
-    const { message_content, receiverUser_id } = request.payload;
-    const senderUser_id = request.pre.user.user_id;
-    const conversation = await Conversation.findOne({
-      where: {
-        [Op.or]: [
-          { [Op.and]: [{ firstUser_id: senderUser_id }, { secondUser_id: receiverUser_id }] },
-          { [Op.and]: [{ firstUser_id: receiverUser_id }, { secondUser_id: senderUser_id }] }
-        ]
-      }
-    })
-
-    if (!conversation) {
-      const firstUser = await User.findByPk(senderUser_id);
-      const secondUser = await User.findByPk(receiverUser_id);
-      const newConversation = await Conversation.create({
-        firstUser_id: senderUser_id,
-        firstUser_name: firstUser.user_name,
-        secondUser_id: receiverUser_id,
-        secondUser_name: secondUser.user_name,
-      })
-      const message = await Message.create({
-        conversation_id: newConversation.conversation_id,
-        senderUser_id: newConversation.firstUser_id,
-        message_content: message_content
-      })
-      const response = h.response({
-        status: 'success',
-        message: 'Pesan terkirim',
-      });
-      response.code(200);
-      return response;
-    }
-    const message = await Message.create({
-      conversation_id: conversation.conversation_id,
-      senderUser_id: senderUser_id,
-      message_content: message_content,
-    })
-    const response = h.response({
-      status: 'success',
-      message: 'Pesan terkirim',
-    });
-    response.code(200);
-    return response;
-  } catch (error) {
-    console.log(error.message);
-  }
-
-}
-
-const getAllConversationsHandler = async (request, h) => {
-  try {
-    const user_id = request.pre.user.user_id;
-    const conversations = await Conversation.findAll({
-      where: {
-        [Op.or]: [{ firstUser_id: user_id }, { secondUser_id: user_id }],
-      }
-    });
-    const frontendConversations = new Array;
-    conversations.forEach(function (conversation) {
-      if (conversation.firstUser_id === user_id) {
-        frontendConversations.push({
-          conversation_id: conversation.conversation_id,
-          companion_name: conversation.secondUser_name
-        })
-      }
-      else {
-        frontendConversations.push({
-          conversation_id: conversation.conversation_id,
-          companion_name: conversation.firstUser_id
-        })
-      }
-    });
-
-    const response = h.response({
-      status: 'success',
-      message: 'semua conversation didapatkan',
-      data: frontendConversations,
-    });
-    response.code(200);
-    return response;
-  } catch (error) {
-    console.log(error.message);
-  }
-
-}
-const getConversationHandler = async (request, h) => {
-  try {
-    const user_id = request.pre.user.user_id;
-    const { conversation_id } = request.params;
-    const messages = await Message.findAll({
-      where: {
-        conversation_id: conversation_id
-      }
-    })
-    const response = h.response({
-      status: 'success',
-      message: 'semua pesan didapatkan',
-      data: messages,
-    });
-    response.code(200);
-    return response;
-  } catch (error) {
-    console.log(error.message);
-  }
-}
-
 const uploadHandler = async (request, h) => {
   try {
     const { file } = request.payload;
@@ -272,5 +162,5 @@ const testHandler = (request, h) => {
 }
 
 module.exports = {
-  registerHandler, loginHandler, testHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler, uploadHandler
+  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler
 };

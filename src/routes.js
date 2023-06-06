@@ -1,5 +1,5 @@
 const {
-  registerHandler, testHandler, loginHandler, getCompaniesHandler, addMessageHandler, getAllConversationsHandler, getConversationHandler, uploadHandler
+  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler
 } = require('./handler');
 const {authorization, isLogin} = require('./middleware/auth')
 const routes = [
@@ -21,18 +21,6 @@ const routes = [
     options: { pre: [authorization] },
   },
   {
-    method: 'GET',
-    path: '/conversations',
-    handler: getAllConversationsHandler,
-    options: { pre: [authorization] },
-  },
-  {
-    method: 'GET',
-    path: '/conversations/{conversation_id}',
-    handler: getConversationHandler,
-    options: { pre: [authorization] },
-  },
-  {
     method: 'POST',
     path: '/upload',
     handler: uploadHandler,
@@ -46,12 +34,6 @@ const routes = [
       },
       pre: [isLogin],
    }
-  },
-  {
-    method: 'POST',
-    path: '/message',
-    handler: addMessageHandler,
-    options: { pre: [authorization] },
   },
   {
     method: 'GET',
