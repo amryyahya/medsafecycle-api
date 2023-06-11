@@ -157,10 +157,28 @@ const uploadHandler = async (request, h) => {
   }
 }
 
+const getHistoryHandler = async (request, h) => {
+  try {
+    const {
+      page, size
+    } = request.params;
+    const user_id = request.pre.user_id;
+    const data = await Waste.findAndCountAll({
+      where: { user_id : user_id},
+      order: [['waste_id', 'DESC']],
+      limit: parseInt(size),
+      offset: parseInt(page),
+    });
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 const testHandler = (request, h) => {
   return "<h1>anda mengakses api</h1>"
 }
 
 module.exports = {
-  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler
+  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler, getHistoryHandler
 };

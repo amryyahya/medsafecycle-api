@@ -1,5 +1,5 @@
 const {
-  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler
+  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler, getHistoryHandler
 } = require('./handler');
 const {authorization, isLogin} = require('./middleware/auth')
 const routes = [
@@ -34,6 +34,12 @@ const routes = [
       },
       pre: [isLogin],
    }
+  },
+  {
+    method: 'GET',
+    path: '/history/{size}/{page}',
+    handler: getHistoryHandler,
+    options: { pre: [isLogin] },
   },
   {
     method: 'GET',
