@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { User } = require('./model/User');
 const { Waste } = require('./model/Waste');
+const {wastesType} = require('./model/WasteType')
 // const { Op } = require("sequelize");
 
 const { storage } = require('./config/storage')
@@ -131,6 +132,9 @@ const uploadHandler = async (request, h) => {
       user_id: request.pre.user_id,
       waste_type: 7,
     })
+    //request api ml
+    waste_type=0;
+    //
     const file_name = waste.waste_id.toString();
     const image_link = `https://storage.googleapis.com/medsafe-cycle/${file_name}`;
     const updatedRows = await Waste.update(
@@ -141,15 +145,16 @@ const uploadHandler = async (request, h) => {
         where: { waste_id: waste.waste_id },
       }
     );
-
+    wasteTypeName=["Sitoktoksik", "Infeksius","Patologis","Farmasi"]
     const destination = storage.bucket('medsafe-cycle').file(file_name);
-    const response = destination.save(file._data, (err) => {
+    const response = await destination.save(file._data, (err) => {
       if (!err) {
-        return { message: "berhasil terupload", type: "limbah kimia" };
+        return { message: "berhasil terupload", type: wasteTypeName[waste_type] };
       } else {
         return { message: err.message }
       }
     });
+    response.waste_information=wastesType[waste_type];
     return response;
 
   } catch (error) {
