@@ -1,5 +1,5 @@
 const {
-  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler, getHistoryHandler, getWasteById, deleteWasteById
+  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler, getHistoryHandler, getWasteByIdHandler, deleteWasteByIdHandler, getMyProfileHandler
 } = require('./handler');
 const {authorization, isLogin} = require('./middleware/auth')
 const routes = [
@@ -44,13 +44,19 @@ const routes = [
   {
     method: 'GET',
     path: '/wastes/{waste_id}',
-    handler: getWasteById,
+    handler: getWasteByIdHandler,
     options: { pre: [isLogin] },
   },
   {
     method: 'DELETE',
     path: '/wastes/{waste_id}',
-    handler: deleteWasteById,
+    handler: deleteWasteByIdHandler,
+    options: { pre: [authorization] },
+  },
+  {
+    method: 'GET',
+    path: '/myprofile',
+    handler: getMyProfileHandler,
     options: { pre: [authorization] },
   },
   {
@@ -58,7 +64,6 @@ const routes = [
     path: '/',
     handler: testHandler,
   },
-
   
 ];
 module.exports = routes;

@@ -193,7 +193,7 @@ const testHandler = (request, h) => {
   return "<h1>anda mengakses api</h1>"
 }
 
-const getWasteById = async (request, h) => {
+const getWasteByIdHandler = async (request, h) => {
   try {
     const {
       waste_id
@@ -207,7 +207,7 @@ const getWasteById = async (request, h) => {
   }
 }
 
-const deleteWasteById = async (request, h) => {
+const deleteWasteByIdHandler = async (request, h) => {
   try {
     const user = request.pre.user;
     const { waste_id } = request.params;
@@ -227,6 +227,15 @@ const deleteWasteById = async (request, h) => {
   }
 }
 
+const getMyProfileHandler = async (request, h) => {
+  try {
+    const user_id = request.pre.user.user_id;
+    const data = await User.findByPk(user_id,{attributes:['user_name','user_address','user_email']});
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 module.exports = {
-  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler, getHistoryHandler, getWasteById, deleteWasteById
+  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler, getHistoryHandler, getWasteByIdHandler, deleteWasteByIdHandler, getMyProfileHandler
 };
