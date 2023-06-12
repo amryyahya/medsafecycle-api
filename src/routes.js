@@ -1,5 +1,5 @@
 const {
-  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler, getHistoryHandler
+  registerHandler, testHandler, loginHandler, getCompaniesHandler, uploadHandler, getHistoryHandler, getWasteById, deleteWasteById
 } = require('./handler');
 const {authorization, isLogin} = require('./middleware/auth')
 const routes = [
@@ -37,14 +37,28 @@ const routes = [
   },
   {
     method: 'GET',
-    path: '/history/{size}/{page}',
+    path: '/history/{size}/{offset}',
     handler: getHistoryHandler,
     options: { pre: [isLogin] },
+  },
+  {
+    method: 'GET',
+    path: '/wastes/{waste_id}',
+    handler: getWasteById,
+    options: { pre: [isLogin] },
+  },
+  {
+    method: 'DELETE',
+    path: '/wastes/{waste_id}',
+    handler: deleteWasteById,
+    options: { pre: [authorization] },
   },
   {
     method: 'GET',
     path: '/',
     handler: testHandler,
   },
+
+  
 ];
 module.exports = routes;

@@ -8,7 +8,8 @@ const Waste = medsafe_db.define("waste", {
     },
     user_id: DataTypes.INTEGER,
     image_link: DataTypes.STRING,
-    waste_type: DataTypes.INTEGER,
+    waste_type: DataTypes.STRING,
+    waste_type_id: DataTypes.INTEGER,
 });
 
 

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const { User } = require('./model/User');
 const { Waste } = require('./model/Waste');
 const {wastesType} = require('./model/WasteType')
+const { nanoid } = require('nanoid');
 // const { Op } = require("sequelize");
 
 const { storage } = require('./config/storage')
@@ -130,31 +131,36 @@ const uploadHandler = async (request, h) => {
     const { file } = request.payload;
     const waste = await Waste.create({
       user_id: request.pre.user_id,
-      waste_type: 7,
     })
     //request api ml
-    waste_type=0;
+    const waste_type="Infeksius";
     //
-    const file_name = waste.waste_id.toString();
+    let waste_type_id=0;
+    if (waste_type==="Sitoktoksik") waste_type_id=0;
+    if (waste_type==="Infeksius") waste_type_id=1;
+    if (waste_type==="Patologis") waste_type_id=2;
+    if (waste_type==="Farmasi") waste_type_id=3;
+    const file_name = nanoid(32);
     const image_link = `https://storage.googleapis.com/medsafe-cycle/${file_name}`;
     const updatedRows = await Waste.update(
       {
+        waste_type: waste_type,
+        waste_type_id: waste_type_id,
         image_link: image_link,
       },
       {
         where: { waste_id: waste.waste_id },
       }
     );
-    wasteTypeName=["Sitoktoksik", "Infeksius","Patologis","Farmasi"]
     const destination = storage.bucket('medsafe-cycle').file(file_name);
     const response = await destination.save(file._data, (err) => {
       if (!err) {
-        return { message: "berhasil terupload", type: wasteTypeName[waste_type] };
+        return { message: "berhasil terupload"};
       } else {
         return { message: err.message }
       }
     });
-    response.waste_information=wastesType[waste_type];
+    response.waste_information=wastesType[waste_type_id];
     return response;
 
   } catch (error) {
@@ -165,16 +171,19 @@ const uploadHandler = async (request, h) => {
 const getHistoryHandler = async (request, h) => {
   try {
     const {
-      page, size
+      offset, size
     } = request.params;
     const user_id = request.pre.user_id;
     const data = await Waste.findAndCountAll({
       where: { user_id : user_id},
       order: [['waste_id', 'DESC']],
       limit: parseInt(size),
-      offset: parseInt(page),
+      offset: parseInt(offset),
+      attributes: ['waste_id','image_link','waste_type','createdAt']
     });
-    return data;
+    response = data.rows;
+    // console.log(response);
+    return response;
   } catch (error) {
     console.log(error.message);
   }
@@ -184,6 +193,40 @@ const testHandler = (request, h) => {
   return "<h1>anda mengakses api</h1>"
 }
 
+const getWasteById = async (request, h) => {
+  try {
+    const {
+      waste_id
+    } = request.params;
+    const data = await Waste.findByPk(waste_id,{attributes:['waste_type','image_link','waste_type_id']});
+    data.dataValues.waste_information = wastesType[data.dataValues.waste_type_id];
+    delete data.dataValues.waste_information.name;
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+const deleteWasteById = async (request, h) => {
+  try {
+    const user = request.pre.user;
+    const { waste_id } = request.params;
+    const theWaste = await Waste.findByPk(waste_id);
+    if (theWaste.user_id === user.user_id){
+      const data = await Waste.destroy({
+        where: {
+          waste_id: waste_id
+        }
+      });
+      return (data ? 'data berhasil dihapus' : 'terjadi error');
+    } else {
+      return "not authorized";
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
 module.exports = {
-  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler, getHistoryHandler
+  registerHandler, loginHandler, testHandler, getCompaniesHandler, uploadHandler, getHistoryHandler, getWasteById, deleteWasteById
 };
