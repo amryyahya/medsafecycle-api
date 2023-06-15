@@ -3,6 +3,10 @@ const { User } = require('./model/User');
 const { Waste } = require('./model/Waste');
 const {wastesType} = require('./model/WasteType')
 const { nanoid } = require('nanoid');
+const { Readable } = require('stream');
+const fetch = require('node-fetch');
+const fs = require('fs');
+var FormData = require('form-data');
 // const { Op } = require("sequelize");
 
 const { storage } = require('./config/storage')
@@ -129,11 +133,23 @@ const getCompaniesHandler = async (request, h) => {
 const uploadHandler = async (request, h) => {
   try {
     const { file } = request.payload;
+    console.log(file);
     const waste = await Waste.create({
       user_id: request.pre.user_id,
     })
     //request api ml
-    const waste_type="Infeksius";
+    const save = fs.writeFileSync('upload/tmp', file._data);
+    const fileStream = fs.createReadStream('upload/tmp');
+    const formData = new FormData();
+    formData.append('file', fileStream); // Append the file to the FormData object
+    const classificationResult = await fetch('https://medsafe-cycle.et.r.appspot.com/medicalWaste', {
+        method: 'POST',
+        body: formData
+    });
+    const data = await classificationResult.json();
+    const type = data.data.category;
+    console.log(type);
+    const waste_type=type;
     //
     let waste_type_id=0;
     if (waste_type==="Sitoktoksik") waste_type_id=0;
