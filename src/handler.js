@@ -137,15 +137,11 @@ const getCompaniesHandler = async (request, h) => {
 const uploadHandler = async (request, h) => {
   try {
     const { file } = request.payload;
-    console.log(file);
-    const waste = await Waste.create({
-      user_id: request.pre.user_id,
-    })
     //request api ml
     const save = fs.writeFileSync('upload/tmp', file._data);
     const fileStream = fs.createReadStream('upload/tmp');
     const formData = new FormData();
-    formData.append('file', fileStream); // Append the file to the FormData object
+    formData.append('file', fileStream); 
     const classificationResult = await fetch('https://medsafe-cycle.et.r.appspot.com/medicalWaste', {
       method: 'POST',
       body: formData
@@ -160,6 +156,16 @@ const uploadHandler = async (request, h) => {
     if (waste_type === "Infeksius") waste_type_id = 1;
     if (waste_type === "Patologis") waste_type_id = 2;
     if (waste_type === "Farmasi") waste_type_id = 3;
+    if (request.pre.user_id===0){
+      const response = {
+        message: "berhasil terupload",
+        waste_information:wastesType[waste_type_id]
+      }
+      return response;
+    }
+    const waste = await Waste.create({
+      user_id: request.pre.user_id,
+    })
     const file_name = nanoid(32);
     const image_link = `https://storage.googleapis.com/medsafe-cycle/${file_name}`;
     const updatedRows = await Waste.update(
