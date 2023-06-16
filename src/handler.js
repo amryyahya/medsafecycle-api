@@ -1,12 +1,14 @@
 const jwt = require("jsonwebtoken");
 const { User } = require('./model/User');
 const { Waste } = require('./model/Waste');
-const {wastesType} = require('./model/WasteType')
+const { wastesType } = require('./model/WasteType')
 const { nanoid } = require('nanoid');
 const { Readable } = require('stream');
 const fetch = require('node-fetch');
 const fs = require('fs');
-var FormData = require('form-data');
+const FormData = require('form-data');
+const crypto = require('crypto');
+
 // const { Op } = require("sequelize");
 
 const { storage } = require('./config/storage')
@@ -15,11 +17,12 @@ const registerHandler = async (request, h) => {
   const {
     name, email, password, address, type
   } = request.payload;
+  const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
   try {
     const user = await User.create({
       user_name: name,
       user_email: email.toLowerCase(),
-      user_password: password,
+      user_password: hashedPassword,
       user_address: address,
       user_type: type,
     })
@@ -55,6 +58,7 @@ const loginHandler = async (request, h) => {
     const {
       email, password
     } = request.payload;
+  const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
     const user = await User.findOne({
       where: {
         user_email: email
@@ -68,7 +72,7 @@ const loginHandler = async (request, h) => {
       response.code(401);
       return response;
     }
-    if (user.user_password === password) {
+    if (user.user_password === hashedPassword) {
       const token = jwt.sign(
         { id: user.user_id },
         process.env.SECRET_KEY
@@ -143,19 +147,19 @@ const uploadHandler = async (request, h) => {
     const formData = new FormData();
     formData.append('file', fileStream); // Append the file to the FormData object
     const classificationResult = await fetch('https://medsafe-cycle.et.r.appspot.com/medicalWaste', {
-        method: 'POST',
-        body: formData
+      method: 'POST',
+      body: formData
     });
     const data = await classificationResult.json();
     const type = data.data.category;
     console.log(type);
-    const waste_type=type;
+    const waste_type = type;
     //
-    let waste_type_id=0;
-    if (waste_type==="Sitoktoksik") waste_type_id=0;
-    if (waste_type==="Infeksius") waste_type_id=1;
-    if (waste_type==="Patologis") waste_type_id=2;
-    if (waste_type==="Farmasi") waste_type_id=3;
+    let waste_type_id = 0;
+    if (waste_type === "Sitoktoksik") waste_type_id = 0;
+    if (waste_type === "Infeksius") waste_type_id = 1;
+    if (waste_type === "Patologis") waste_type_id = 2;
+    if (waste_type === "Farmasi") waste_type_id = 3;
     const file_name = nanoid(32);
     const image_link = `https://storage.googleapis.com/medsafe-cycle/${file_name}`;
     const updatedRows = await Waste.update(
@@ -171,12 +175,12 @@ const uploadHandler = async (request, h) => {
     const destination = storage.bucket('medsafe-cycle').file(file_name);
     const response = await destination.save(file._data, (err) => {
       if (!err) {
-        return { message: "berhasil terupload"};
+        return { message: "berhasil terupload" };
       } else {
         return { message: err.message }
       }
     });
-    response.waste_information=wastesType[waste_type_id];
+    response.waste_information = wastesType[waste_type_id];
     return response;
 
   } catch (error) {
@@ -191,11 +195,11 @@ const getHistoryHandler = async (request, h) => {
     } = request.params;
     const user_id = request.pre.user_id;
     const data = await Waste.findAndCountAll({
-      where: { user_id : user_id},
+      where: { user_id: user_id },
       order: [['waste_id', 'DESC']],
       limit: parseInt(size),
       offset: parseInt(offset),
-      attributes: ['waste_id','image_link','waste_type','createdAt']
+      attributes: ['waste_id', 'image_link', 'waste_type', 'createdAt']
     });
     response = data.rows;
     // console.log(response);
@@ -214,7 +218,7 @@ const getWasteByIdHandler = async (request, h) => {
     const {
       waste_id
     } = request.params;
-    const data = await Waste.findByPk(waste_id,{attributes:['waste_type','image_link','waste_type_id']});
+    const data = await Waste.findByPk(waste_id, { attributes: ['waste_type', 'image_link', 'waste_type_id'] });
     data.dataValues.waste_information = wastesType[data.dataValues.waste_type_id];
     delete data.dataValues.waste_information.name;
     return data;
@@ -228,7 +232,7 @@ const deleteWasteByIdHandler = async (request, h) => {
     const user = request.pre.user;
     const { waste_id } = request.params;
     const theWaste = await Waste.findByPk(waste_id);
-    if (theWaste.user_id === user.user_id){
+    if (theWaste.user_id === user.user_id) {
       const data = await Waste.destroy({
         where: {
           waste_id: waste_id
@@ -246,7 +250,7 @@ const deleteWasteByIdHandler = async (request, h) => {
 const getMyProfileHandler = async (request, h) => {
   try {
     const user_id = request.pre.user.user_id;
-    const data = await User.findByPk(user_id,{attributes:['user_name','user_address','user_email']});
+    const data = await User.findByPk(user_id, { attributes: ['user_name', 'user_address', 'user_email'] });
     return data;
   } catch (error) {
     console.log(error.message);
